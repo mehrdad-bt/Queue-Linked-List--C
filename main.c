@@ -53,8 +53,6 @@ int main(){
     printf("Enter an option:\n1=Enqueue\n2=Dequeue\n3=PrintAll\n4=Save\n5=Exit\n");
     scanf("%d", &choice);
     Menu(choice-1, Op);
-    void Enqueue();
-    void PrintAll();
     }while(choice != 5);
     freeMemory();
 
@@ -146,6 +144,7 @@ void Dequeue(){
         return;
     }
     front = front->next;
+    data_nums--;
     free(task);
 
 
