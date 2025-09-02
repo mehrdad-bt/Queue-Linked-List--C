@@ -9,10 +9,14 @@ typedef struct Queue{
     struct Queue *next;
 }Queue;
 
+typedef struct NonePointerQueue{
+    int data;
+}NonePointerQueue;
+
 Queue *front = NULL;
 Queue *rear = NULL;
 Queue *record;
-
+int data_nums;
 
 
 
@@ -26,10 +30,12 @@ void Save();
 void Menu();
 void freeMemory();
 
-void (*Op[2])(void)=
+void (*Op[4])(void)=
 {
     Enqueue,
-    PrintQueue
+    Dequeue,
+    PrintQueue,
+    Save
 
 };
 
@@ -40,14 +46,16 @@ void Menu(int choice, void(*Op[])(void)){
 
 int main(){
     
+    
     int choice=0;
+    Start();
     do{
-    printf("Enter an option:\n1=Enqueue\n2=PrintAll\n3=Exit\n");
+    printf("Enter an option:\n1=Enqueue\n2=Dequeue\n3=PrintAll\n4=Save\n5=Exit\n");
     scanf("%d", &choice);
     Menu(choice-1, Op);
     void Enqueue();
     void PrintAll();
-    }while(choice != 3);
+    }while(choice != 5);
     freeMemory();
 
     
@@ -63,10 +71,9 @@ int main(){
 
 void Start(){
 
-    Queue temp;
-    int data_nums;
+    NonePointerQueue temp;
 
-    FILE *fp = fopen("data.hex","rb");
+    FILE *fp = fopen("database.hex","rb");
     if(fp != NULL)
     {
     fread(&data_nums, sizeof(data_nums), 1, fp);
@@ -78,8 +85,9 @@ void Start(){
             printf("Memory allocation failed!\n");
             return;
         }
-        fread(&temp, sizeof(Queue), 1, fp);
+        fread(&temp, sizeof(NonePointerQueue), 1, fp);
         record->data = temp.data;
+        record->next = NULL;
         if(front == NULL)
         {
             front = record;
@@ -93,12 +101,10 @@ void Start(){
         }
         rear->next = NULL;
     }
-
+    printf("\t\t\t\t\tDatabase has been successfuly loaded !\n");
     }
-
-
-
-
+    fclose(fp);
+    
 
 }
 
@@ -127,6 +133,22 @@ void Enqueue(){
         rear = record;
     }
     rear->next = NULL;
+    data_nums++;
+}
+
+void Dequeue(){
+    
+    Queue *task = front;
+
+    if(front== NULL)
+    {
+        printf("No data to Dequeue!\n");
+        return;
+    }
+    front = front->next;
+    free(task);
+
+
 
 }
 
@@ -154,4 +176,32 @@ void freeMemory(){
         tmp = front->next;
         free(front);
     }
+}
+
+void Save(){
+    NonePointerQueue temp;
+    Queue *current = front;
+
+
+    FILE *fp = fopen("database.hex","wb");
+    if(fp == NULL)
+    {
+        printf("File save failed!\n");
+        return;
+    }
+
+    if(fwrite(&data_nums, sizeof(data_nums), 1, fp) != 1)
+    {
+        printf("File save failed!\n");
+        return;
+    }
+    for(int i = 0; i < data_nums; i++){
+        printf("Data sving...\n");
+        temp.data = current->data;
+        fwrite(&temp, sizeof(NonePointerQueue), 1, fp);
+        current = current->next;
+
+    }
+    fclose(fp);
+    printf("New Datas has been saved !\n");
 }
